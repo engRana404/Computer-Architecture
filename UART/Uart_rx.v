@@ -11,10 +11,10 @@ reg  [2:0]      nextstate;
 parameter       NBits      =4'b1000;
 
 //FSM
-parameter      IDLE        = 3'b000;
-parameter      START       = 3'b001;
-parameter      RX_DATA     = 3'b011;
-parameter      STOP        = 3'b110;
+parameter      IDLE        = 2'b00;
+parameter      START       = 2'b01;
+parameter      RX_DATA     = 2'b10;
+parameter      STOP        = 2'b11;
 // nextstate transform
 always@(*) begin
   data_count=4'd0;
