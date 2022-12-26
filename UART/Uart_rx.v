@@ -1,6 +1,6 @@
 //1 start_bit + 8 data_bits + 1 stop_bit
-module Uart_rx(clk,rx_to_fifo,rx_dout);
-input           clk; 
+module Uart_rx(rx_tick,rx_to_fifo,rx_dout);
+input           rx_tick; 
 output reg     rx_to_fifo;
 output reg  [7:0]      rx_dout;
 reg  [3:0]      OS_count;//oversampling counter max:15
