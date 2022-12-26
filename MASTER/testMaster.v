@@ -45,7 +45,7 @@
                @(posedge PCLK)     READ_WRITE =1; PRESETn<=0; transfer<=0; 
                @(posedge PCLK)     PRESETn = 1;
      repeat(3) @(posedge PCLK)     transfer = 1;                             // no read address available but request for read operation
-     repeat(2) @(posedge PCLK)     Read_slave1;                             //read operation task
+	    repeat(2) @(posedge PCLK)     Read_gpio;                             //read operation task
 
      repeat(3) @(posedge PCLK);   Read_slave2;
      repeat(3) @(posedge PCLK);   get_r_paddr = 32'd45;                 //data not inserted in write operation but requested for read operation
