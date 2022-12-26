@@ -1,4 +1,4 @@
- module test;
+  module test;
  //Creating signals that will be send to the master and slaves
   reg PCLK,PRESETn,transfer,READ_WRITE;
   reg [32:0] get_w_paddr,get_r_paddr;
@@ -39,8 +39,8 @@
                @(negedge PCLK)      Write_gpio;        // write operation
 
      repeat(3) @(posedge PCLK);    Write_slave2;                                 
-               @(posedge PCLK);    get_w_paddr = 9'd526;  get_w_data_in = 9'd9;  //###############numbers needed to be changed
-     repeat(2) @(posedge PCLK);    get_w_paddr = 9'd22; get_w_data_in = 9'd35;
+               @(posedge PCLK);    get_w_paddr = 32'd526;  get_w_data_in = 32'd9;  
+     repeat(2) @(posedge PCLK);    get_w_paddr = 32'd22; get_w_data_in = 32'd35;
      repeat(2) @(posedge PCLK);
                @(posedge PCLK)     READ_WRITE =1; PRESETn<=0; transfer<=0; 
                @(posedge PCLK)     PRESETn = 1;
@@ -48,7 +48,7 @@
      repeat(2) @(posedge PCLK)     Read_slave1;                             //read operation task
 
      repeat(3) @(posedge PCLK);   Read_slave2;
-     repeat(3) @(posedge PCLK);   get_r_paddr = 9'd45;                 //data not inserted in write operation but requested for read operation
+     repeat(3) @(posedge PCLK);   get_r_paddr = 32'd45;                 //data not inserted in write operation but requested for read operation
      repeat(4) @(posedge PCLK);
      $finish;
   end
