@@ -90,15 +90,15 @@ module gpio #(
  
     assign PSLVERR = 1'b0;
     assign PREADY  = 1'b1;
+    integer n;
     
     // FUNCTIONS DEFINATION
-    integer n;
   
     // valid write to given adress
     // adress is argument
-    function automatic write_valid_to_adr(input [PADDR_SIZE-1:0] address);
-     return (PENABLE & PWRITE & PSEL & (PADDR == address)) ;  
-    endfunction
+    //function automatic write_valid_to_adr(input [PADDR_SIZE-1:0] address);
+     //return (PENABLE & PWRITE & PSEL & (PADDR == address)) ;  
+    //endfunction
     
     // Decides what data to write and what to mask
     // Handles PSTRB //Takes current value of register as input
@@ -132,28 +132,28 @@ module gpio #(
         
         end  
         
-        else if (write_valid_to_adr(MODE))begin
+        else if (PENABLE & PWRITE & PSEL & (PADDR == MODE))begin
           gpio_mode      <= select_write_bytes(gpio_mode);
         end
-        else if (write_valid_to_adr(DIRECTION))begin
+        else if (PENABLE & PWRITE & PSEL & (PADDR == DIRECTION))begin
           gpio_direction <= select_write_bytes(gpio_direction);
         end
-        else if (write_valid_to_adr(OUTPUT) || write_valid_to_adr(INPUT))begin
+        else if ((PENABLE & PWRITE & PSEL & (PADDR == OUTPUT)) || (PENABLE & PWRITE & PSEL & (PADDR == INPUT)))begin
           gpio_output <= select_write_bytes(gpio_output);
         end
-        else if (write_valid_to_adr(IRQ_EN))begin
+        else if (PENABLE & PWRITE & PSEL & (PADDR == IRQ_EN))begin
           gpio_irq_en <= select_write_bytes(gpio_irq_en);
         end
-        else if (write_valid_to_adr(TR_TYPE))begin
+        else if (PENABLE & PWRITE & PSEL & (PADDR == TR_TYPE))begin
           gpio_tr_type <= select_write_bytes(gpio_tr_type);
         end
-        else if (write_valid_to_adr(TR_LVL0))begin
+        else if (PENABLE & PWRITE & PSEL & (PADDR == TR_LVL0))begin
           gpio_tr_lvl0 <= select_write_bytes(gpio_tr_lvl0);
         end
-        else if (write_valid_to_adr(TR_LVL1))begin
+        else if (PENABLE & PWRITE & PSEL & (PADDR == TR_LVL1))begin
           gpio_tr_lvl1 <= select_write_bytes(gpio_tr_lvl1);
         end
-        else if (write_valid_to_adr(TR_STAT))begin
+        else if (PENABLE & PWRITE & PSEL & (PADDR == TR_STAT))begin
           gpio_tr_stat <= clear_when_write(gpio_tr_stat) | tr_status;
         end
         else
