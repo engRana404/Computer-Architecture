@@ -27,15 +27,15 @@ module gpio_testbench#(
 );
 
     // Adresses for configuration registers
-     parameter MODE = 1'd0;
-     parameter DIRECTION = 1'd1;
-     parameter OUTPUT = 1'd2;
-     parameter INPUT = 1'd3;
-     parameter TR_TYPE = 1'd4;
-     parameter TR_LVL0 = 1'd5;
-     parameter TR_LVL1 = 1'd6;
-     parameter TR_STAT = 1'd7;
-     parameter IRQ_EN = 1'd8; 
+     parameter MODE = 4'd0;
+     parameter DIRECTION = 4'd1;
+     parameter OUTPUT = 4'd2;
+     parameter INPUT = 4'd3;
+     parameter TR_TYPE = 4'd4;
+     parameter TR_LVL0 = 4'd5;
+     parameter TR_LVL1 = 4'd6;
+     parameter TR_STAT = 4'd7;
+     parameter IRQ_EN = 4'd8; 
 
                 
     reg [GPIO_PINS - 1 : 0]   actual_data     = 32'd0,       // Actual data register 
@@ -106,23 +106,23 @@ module gpio_testbench#(
 
 
         task automatic Welcome_screen();begin  // Welcome Screen
-            $monitor("...................................Testbench Initiated...............................");           
-            $monitor("....................................................................................."); 
+            $display("...................................Testbench Initiated...............................");           
+            $display("....................................................................................."); 
           end
         endtask 
         task finish_text_PASSED(); //  Test pass message function
             begin
-                $monitor ("------------------------------------------------------------");
-                $monitor (" TEST PASSED Testbench finished successfully @%0t", $time);
-                $monitor ("------------------------------------------------------------");
+                $display ("------------------------------------------------------------");
+                $display (" TEST PASSED Testbench finished successfully " );
+                $display ("------------------------------------------------------------");
             end
         endtask
     
         task finish_text_FAILED(); //  Test fail message function
             begin
-                $monitor ("------------------------------------------------------------");
-               $monitor (" TEST FAILED Testbench finished successfully @%0t", $time);
-                $monitor ("------------------------------------------------------------");
+                $display ("------------------------------------------------------------");
+               $display (" TEST FAILED Testbench finished successfully ");
+                $display ("------------------------------------------------------------");
             end
         endtask
         

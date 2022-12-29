@@ -52,7 +52,7 @@ module gpio #(
    output  PSLVERR,                           // This signal indicates a transfer failure.
    output  reg IRQ_O = 0,                         // IRQ_O is a single bit output which is asserted (?1?) when a valid interrupt is triggered on GPIO I  
    
-   input  reg [GPIO_PINS-1:0]   GPIO_I,       //GPIO_I is the input bus  
+   input  	[GPIO_PINS-1:0]   GPIO_I,       //GPIO_I is the input bus  
    output reg [GPIO_PINS-1:0]   GPIO_O = 0,   //GPIO_O is the output bus
                                 GPIO_OE = 0   //GPIO_OE is an active-high Output Enable bus
 );
