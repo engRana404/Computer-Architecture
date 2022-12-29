@@ -40,7 +40,7 @@ PSEL);
       invalid_write_paddr,
       invalid_write_data ;
   
-  localparam IDLE = 2'b00, SETUP = 2'b10, ENABLE = 2'b11 ;
+  localparam IDLE = 2'b00, SETUP = 2'b10, ACCESS = 2'b11 ;
 
   //------------------------------------------
   //Finite state machine
@@ -63,7 +63,9 @@ PSEL);
              PWRITE = ~READ_WRITE;
           end
         case (state)
-                  
+            //
+            // IDLE
+            //     
 		    IDLE: begin 
 		        PENABLE =0;
 
@@ -72,7 +74,9 @@ PSEL);
 	            else
 			        next_state = SETUP;
 	        end
-
+            //
+            // SETUP
+            // 
 	       	SETUP:   begin
 			    PENABLE =0;
 
@@ -93,12 +97,14 @@ PSEL);
                 end
 			    
 			    if(transfer && !PSLVERR)
-			        next_state = ENABLE;
+			        next_state = ACCESS;
 		        else
            	        next_state = IDLE;
 		    end
-
-	       	ENABLE: begin 
+            //
+            // Access
+            // 
+	       	ACCESS: begin 
                 if(PSEL[0] || PSEL[1])
 		            PENABLE =1;
 			    if(transfer & !PSLVERR) begin
@@ -110,7 +116,7 @@ PSEL);
 				          	send_r_out = PRDATA; //get read data
 					   end
 			        end
-				        else next_state = ENABLE;
+				        else next_state = ACCESS;
 		        end
 		            else next_state = IDLE;
 			end
@@ -135,22 +141,31 @@ PSEL);
 	        invalid_write_paddr =0 ;
 	    end
         else begin	
-	        if(state == IDLE && next_state == ENABLE)
+            begin  //DO NOT REMOVE allows conditions to run in parallel
+	        if(state == IDLE && next_state == ACCESS)
                 setup_error = 1;
 	        else setup_error = 0;
+            end
 
-            if((get_w_data_in===32'dx) && (!READ_WRITE) && (state==SETUP || state==ENABLE))
+            begin
+            if((get_w_data_in===32'dx) && (!READ_WRITE) && (state==SETUP || state==ACCESS))
 		        invalid_write_data =1;
 	        else invalid_write_data = 0;
+            end
 
-	        if((get_r_paddr===33'dx) && READ_WRITE && (state==SETUP || state==ENABLE))
+            begin
+	        if((get_r_paddr===33'dx) && READ_WRITE && (state==SETUP || state==ACCESS))
 		        invalid_read_paddr = 1;
 	        else  invalid_read_paddr = 0;
+            end
 
-            if((get_w_paddr===33'dx) && (!READ_WRITE) && (state==SETUP || state==ENABLE))
+            begin 
+            if((get_w_paddr===33'dx) && (!READ_WRITE) && (state==SETUP || state==ACCESS))
 		        invalid_write_paddr =1;
             else invalid_write_paddr =0;
-          
+            end
+
+            begin
             if(state == SETUP) begin
                 if(PWRITE) begin
                     if(PADDR==get_w_paddr && PWDATA==get_w_data_in)
@@ -166,6 +181,8 @@ PSEL);
                 end    
             end 
             else setup_error=1'b0;
+            end
+
         end 
         Error = setup_error ||  invalid_read_paddr || invalid_write_data || invalid_write_paddr  ;
     end
@@ -173,4 +190,3 @@ PSEL);
     assign PSLVERR =  Error ; //assign error checks to PSLVERR
 
 endmodule
-    
