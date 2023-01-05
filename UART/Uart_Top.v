@@ -44,7 +44,7 @@ Baud_generator_timer #(
 
 transmitter uart_tx(.din(PWDATA),
 		    .wr_en(PWRITE),
-		    .clk_50m(PCLK),
+		    .CLK(PCLK),
 		    .clken(tx_tick),
 		    .tx(tx),
 		    .tx_busy(tx_busy));
