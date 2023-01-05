@@ -24,11 +24,10 @@ transmitter uart_tx(.din(din),
 		    
 //reciever
 receiver uart_rx(.rx(rx),
-		 .rdy(rdy),
-		 .rdy_clr(rdy_clr),
-		 .CLK(CLK),
-		 .clken(rxclk_en),
-		 .data(dout));
-
+		 .ready(rdy),
+		 .ready_clr(rdy_clr),
+		 .clk(clk_50m),
+		 .EnClk(rxclk_en),
+		 .rdout(dout));
 endmodule
 
