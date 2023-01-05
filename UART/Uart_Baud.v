@@ -1,6 +1,6 @@
 
 /*Oversampling by making reciever faster than transmitter by 16 times*/
-module Baud_generator_timer
+module Uart_Baud
 #(parameter CLOCK_RATE = 100000000, //f=100MHZ frequency of microcontroller
     parameter BAUD_RATE = 9600)(
     input wire clk, 
