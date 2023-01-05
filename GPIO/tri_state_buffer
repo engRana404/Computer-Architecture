@@ -1,0 +1,18 @@
+module tri-Buff(enable,data_out,io_port,data_in);
+    input [31:0] op_en;
+    inout [31:0] io_port;
+    input [31:0] data_out;
+    output reg [31:0] data_in;
+
+    integer i;
+    reg
+
+    always @(*) begin
+        for(i=0; i<32; i=i+1)begin
+            io_port[i] = enable[i]? data_out[i]: 1'bz;
+        end
+        
+        data_in = io_port;
+    end
+    
+endmodule
