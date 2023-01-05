@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 module test;
  //Creating signals that will be send to the master and slaves
   reg PCLK,PRESETn,transfer,READ_WRITE;
@@ -8,6 +10,7 @@ module test;
   wire PSLVERR;
   reg [32:0]data;
   wire [31:0] gpioIO;
+
 
 
   APB_Protocol obj_Apb(  PCLK,
@@ -31,14 +34,30 @@ module test;
    end
 
 
+
+
     initial
     begin
+                              PRESETn<=0; transfer<=0; READ_WRITE =0;
+               @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
+               @(posedge PCLK)      transfer = 1;
+     repeat(2) @(posedge PCLK);
+               @(negedge PCLK)      WriteGPIO(0,32'h0);        // write operation
+
+		#3
+                               PRESETn<=0; transfer<=0; READ_WRITE =0;
+               @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
+               @(posedge PCLK)      transfer = 1;
+     repeat(2) @(posedge PCLK);
+               @(negedge PCLK)      WriteGPIO(1,32'hFFFFFFFF);        // write operation
+
+		#3
     
                           PRESETn<=0; transfer<=0; READ_WRITE =0;
                @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
                @(posedge PCLK)      transfer = 1;
      repeat(2) @(posedge PCLK);
-               @(negedge PCLK)      WriteGPIO(33'd1,32'd9);        // write operation
+               @(negedge PCLK)      WriteGPIO(32'd2,32'd9);        // write operation
 
   
      $finish;

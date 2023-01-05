@@ -1,12 +1,10 @@
 include "Master.v";
 //GPIO
 include "GPIO.v";
-
-
-
+//tri-state buffer
+include "tri-state.v";
 
 `timescale 1ns/1ns
-
 
 
 module APB_Protocol(
@@ -16,56 +14,38 @@ module APB_Protocol(
    output PSLVERR, 
    output [32:0] send_r_out,
    inout   [31:0] gpioIO,
-   output [31:0] PWDATA
+   input [3:0]PSTRB
           );
+       wire [32:0] PADDR;
+       wire [31:0] PWDATA;
        wire [1:0] PSEL;
-       wire [32:0] PRDATA, PRDATA1;
-       wire [32:0]PADDR;
+       wire [32:0] PRDATA;
        wire [31:0] GPIO_OE;
        wire [31:0] GPIO_O;
-       reg [31:0] GPIO_I,IO;
-	
-
+       wire [31:0] GPIO_I;
+       
        //READY 1 and Reay 2 for slave 1 and 2
-       wire PREADY,PREADY1, PENABLE, PWRITE;
-
-      //#########################
-
-        assign PREADY = PREADY1 ;
-        assign PRDATA = READ_WRITE ? PRDATA1 : 32'dx ;
-integer i;
-always @(*)
-begin	 
-for (i = 0;  i< 32; i= i+1)
-        begin
-	if(GPIO_OE[i]==1'b1) 
-	begin 
-	   GPIO_I[i] = gpioIO[i];
-	end
-
-	else 
-	begin
-	 IO[i] = GPIO_O[i];
-	end
-
-	end
-end
-
-assign gpioIO = IO;
-
+       wire PREADY, PENABLE, PWRITE;
+       //assign PSTRB =4'b1111;
+       //#########################
+	//to be checked later
+        assign PRDATA =READ_WRITE ? PRDATA :32'dx;
+	//Using tri-state buffer
+	Tri_Buff buff(.enable(GPIO_OE),.data_out(GPIO_O),.io_port(gpioIO),.data_in(GPIO_I));
+	
      //Create object from the master
        master obj_mas(
-        get_w_paddr,get_r_paddr, 
+       get_w_paddr[32:0],get_r_paddr, 
        get_w_data_in,
        PRDATA, 
-        PSTRB,  
-        PRESETn,
+       PSTRB,  
+       PRESETn,
        PCLK,
        PREADY,
        transfer,
        READ_WRITE,
        PENABLE,
-       PADDR,
+       PADDR[32:0],
        PWRITE,
        PWDATA,
        send_r_out,
@@ -73,7 +53,7 @@ assign gpioIO = IO;
        PSEL
                 ); 
 
-      //Create Objects from our two slaves
-      gpio dut1(PCLK, PRESETn, PADDR[3:0], PWDATA, PWRITE, PSEL1, PENABLE, PSTRB, PREADY1, PRDATA1, PSLVERR, IRQ_O, GPIO_I, GPIO_O, GPIO_OE);
+      //Create Objects from our slave
+      gpio dut1 (.PCLK(PCLK), .PRESETn(PRESETn), .PADDR(PADDR[3:0]), .PWDATA(PWDATA), .PWRITE(PWRITE), .PSEL(PSEL), .PENABLE(PENABLE), .PSTRB(PSTRB), .PREADY(PREADY), .PRDATA(PRDATA), .PSLVERR(PSLVERR), .IRQ_O(IRQ_O), .GPIO_I(GPIO_I), .GPIO_O(GPIO_O), .GPIO_OE(GPIO_OE));
 
 endmodule

@@ -1,13 +1,16 @@
+`timescale 1ns/1ns
+
 module test;
  //Creating signals that will be send to the master and slaves
   reg PCLK,PRESETn,transfer,READ_WRITE;
   reg [32:0] get_w_paddr,get_r_paddr;
   reg [31:0]get_w_data_in;
-  wire [31:0]PWDATA;
   wire [32:0]send_r_out;
   wire PSLVERR;
   reg [32:0]data;
   wire [31:0] gpioIO;
+  reg [3:0]PSTRB;
+
 
 
   APB_Protocol obj_Apb(  PCLK,
@@ -20,7 +23,7 @@ module test;
                         PSLVERR, 
                         send_r_out,
 			gpioIO,
-			PWDATA
+			PSTRB
                       );
   integer i,j;
   //initialize the clock
@@ -31,71 +34,74 @@ module test;
    end
 
 
+
+
     initial
     begin
-                                    PRESETn<=0; transfer<=0; READ_WRITE =0;
+                              PRESETn<=0; transfer<=0; READ_WRITE =0; PSTRB =4'b1111;
                @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
                @(posedge PCLK)      transfer = 1;
      repeat(2) @(posedge PCLK);
-               @(negedge PCLK)      WriteGPIO(0,32'h0);        // write operation
+               @(negedge PCLK)      get_w_paddr=0; get_w_data_in=32'h0;    // write operation
 
 		#3
-                               PRESETn<=0; transfer<=0; READ_WRITE =0;
+                               PRESETn<=0; transfer<=0; READ_WRITE =0; PSTRB =4'b1111;
                @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
                @(posedge PCLK)      transfer = 1;
      repeat(2) @(posedge PCLK);
-               @(negedge PCLK)      WriteGPIO(1,32'hFFFFFFFF);        // write operation
+               @(negedge PCLK)     get_w_paddr=33'd1; get_w_data_in=32'hFFFFFFFF;        // write operation
 
 		#3
-                               PRESETn<=0; transfer<=0; READ_WRITE =0;
+    
+                          PRESETn<=0; transfer<=0; READ_WRITE =0; PSTRB =4'b1111;
                @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
                @(posedge PCLK)      transfer = 1;
      repeat(2) @(posedge PCLK);
-               @(negedge PCLK)      WriteGPIO(1,32'd9);        // write operation
+               @(negedge PCLK)     get_w_paddr=33'd2; get_w_data_in=32'd31;   // write operation
 
 
-     repeat(3) @(posedge PCLK);                                
-               @(posedge PCLK);    get_w_paddr = 32'd526;  get_w_data_in = 32'd9;  
-     repeat(2) @(posedge PCLK);    get_w_paddr = 32'd22; get_w_data_in = 32'd35;
+  		#3
+                 PRESETn<=0; transfer<=0; READ_WRITE =0; PSTRB =4'b1111;
+               @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
+               @(posedge PCLK)      transfer = 1;
      repeat(2) @(posedge PCLK);
-               @(posedge PCLK)     READ_WRITE =1; PRESETn<=0; transfer<=0; 
-               @(posedge PCLK)     PRESETn = 1;
-     repeat(3) @(posedge PCLK)     transfer = 1;                             // no read address available but request for read operation
-    repeat(2) @(posedge PCLK)     ReadGPIO;                             //read operation task
+               @(negedge PCLK)      get_w_paddr=0; get_w_data_in=32'h0;    // Mode Push-Pull
 
-     repeat(3) @(posedge PCLK);   get_r_paddr = 32'd45;                 //data not inserted in write operation but requested for read operation
-     repeat(4) @(posedge PCLK);
+		#3
+
+                               PRESETn<=0; transfer<=0; READ_WRITE =0; PSTRB =4'b1111;
+               @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
+               @(posedge PCLK)      transfer = 1;
+     repeat(2) @(posedge PCLK);
+               @(negedge PCLK)     get_w_paddr=33'd1; get_w_data_in=32'h0;        // Direction to Read
+
+		#3
+    
+                          PRESETn<=0; transfer<=0; READ_WRITE =0; PSTRB =4'b1111;
+               @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
+               @(posedge PCLK)      transfer = 1;
+     repeat(2) @(posedge PCLK);
+               @(negedge PCLK)     get_w_paddr=33'd4; get_w_data_in=32'hFFFFFFFF;   //Trigger type:Edge 
+  		#3
+
+                          PRESETn<=0; transfer<=0; READ_WRITE =0; PSTRB =4'b1111;
+               @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
+               @(posedge PCLK)      transfer = 1;
+     repeat(2) @(posedge PCLK);
+               @(negedge PCLK)     get_w_paddr=33'd6; get_w_data_in=32'hFFFFFFFF;   // Rising edge triggering 
+  		#3
+
+          PRESETn<=0; transfer<=0; READ_WRITE =1; PSTRB =4'b1111;
+               @(posedge PCLK)      PRESETn = 1;                                     //no write address available but request for write operation
+               @(posedge PCLK)      transfer = 1;
+     repeat(2) @(posedge PCLK);
+		@(negedge PCLK)     gpioIO = 4'd5;
+               @(posedge PCLK)      get_r_paddr=33'd3;   // read address
+  		#3
+
+
      $finish;
   end
-
-  task WriteGPIO( [32:0] address, [31:0] d);
-     begin
-	
-	get_w_paddr = address;
-	get_w_data_in = d;
-   
-     end
-endtask
-
-
-   
-  task ReadGPIO;
-   
-      begin 
- for (j = 0;  j< 32; j= j+1)
-        begin
- repeat(2)@(negedge PCLK)
-          begin   
-   data = j; 
-   get_r_paddr = {1'b0,data};
-     
-         end
-        end
-      end
-  endtask
-
-
-
 
 
  endmodule
