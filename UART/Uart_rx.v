@@ -1,77 +1,54 @@
-//1 start_bit + 8 data_bits + 1 stop_bit
-module Uart_rx
-#(
-    parameter DBITS = 8 
-)
-(clk,rx_done,rx_dout);
-input           clk; 
-output reg     rx_done;
-output [DBITS-1:0]      rx_dout;
-reg  [3:0]      OS_count;//oversampling counter max:15
-reg  [3:0]      data_count; //d0:d8-->8 data bits
-reg             rx_start;  
-reg  [DBITS-1:0] ShiftReg;
-reg  [2:0]      state;
-reg  [2:0]      nextstate;
+`include "uart.v"
 
-//FSM
-parameter      IDLE        = 2'b00;
-parameter      START       = 2'b01;
-parameter      RX_DATA     = 2'b10;
-parameter      STOP        = 2'b11;
-// nextstate transform
-always@(*) begin
-  data_count=4'd0;
-    case(state)
-    IDLE: begin
-        if(rx_start==4'd0) begin
-            OS_count=0;
-            nextstate = START;
-        end
-        else begin
-            nextstate = IDLE;
-        end
-    end
-    START: begin
-        if(OS_count==4'd7) //OS_count==7
-        begin
-            OS_count=0;
-            nextstate = RX_DATA;
-        end
-        else begin
-            OS_count=OS_count+1;
-            nextstate = START;
-        end
-    end
-    RX_DATA: begin
-        if(OS_count == 4'd15) begin
-          OS_count=0;
-          ShiftReg= rx_start|(ShiftReg>>1);
-          if(data_count==(DBITS-1)) begin    
-                nextstate = STOP;
-            end
-          else begin
-            data_count=data_count+1;
-            nextstate = RX_DATA;
-          end
-        end 
-        else begin
-            OS_count=OS_count+1;
-            nextstate = RX_DATA;    
-        end
-    end
-    
-    STOP: begin
-        if(OS_count==4'd7) begin
-            rx_done=1;
-            nextstate = IDLE;
-        end
-        else begin
-          OS_count=OS_count+1;
-          nextstate = STOP; 
-        end
-    end
-    endcase
+module uart_tx_test();
+
+reg [7:0] data = 0;
+reg clk = 0;
+reg enable = 0;
+
+wire tx_busy;
+wire rdy;
+wire [7:0] rxdata;
+
+wire loopback;
+reg rdy_clr = 0;
+
+uart test_uart(.din(data),
+	       .wr_en(enable),
+	       .clk_50m(clk),
+	       .tx(loopback),
+	       .tx_busy(tx_busy),
+	       .rx(loopback),
+	       .rdy(rdy),
+	       .rdy_clr(rdy_clr),
+	       .dout(rxdata));
+
+initial begin
+	$dumpfile("uart.vcd");
+	$dumpvars(0, uart_tx_test);
+	enable <= 1'b1;
+	#2 enable <= 1'b0;
 end
-    assign rx_dout=ShiftReg;
+
+always begin
+	#1 clk = ~clk;
+end
+
+always @(posedge rdy) begin
+	#2 rdy_clr <= 1;
+	#2 rdy_clr <= 0;
+	if (rxdata != data) begin
+		$display("FAIL: rx data %x does not match tx %x", rxdata, data);
+		$finish;
+	end else begin
+		if (rxdata == 8'hff) begin
+			$display("SUCCESS: all bytes verified");
+			$finish;
+		end
+		data <= data + 1'b1;
+		enable <= 1'b1;
+		#2 enable <= 1'b0;
+	end
+end
+
 endmodule
