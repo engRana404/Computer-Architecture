@@ -16,6 +16,7 @@ output wire [DBITS-1:0] rx_dout,
 input wire PWRITE,//wr_uart
 input wire [DBITS-1:0] PWDATA ,//w_data
 output wire  tx ,
+output wire tx_busy,
 output wire   [DBITS-1:0] r_data
 );
 wire rx_tick;
@@ -38,6 +39,15 @@ Baud_generator_timer #(
     .rx_tick(rx_tick),
     .tx_tick(tx_tick)
 );
+ 
+//transmitter 
+
+transmitter uart_tx(.din(PWDATA),
+		    .wr_en(PWRITE),
+		    .clk_50m(PCLK),
+		    .clken(tx_tick),
+		    .tx(tx),
+		    .tx_busy(tx_busy));
 
 
 
