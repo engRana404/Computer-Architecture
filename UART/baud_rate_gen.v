@@ -1,5 +1,5 @@
 /*
- * Hacky baud rate generator to divide a 50MHz clock into a 115200 baud
+ * baud rate generator to divide a 50MHz clock into a 115200 baud
  * rx/tx pair where the rx clcken oversamples by 16x.
  */
 module baud_rate_gen(input wire clk_50m,
