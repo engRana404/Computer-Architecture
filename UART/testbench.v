@@ -16,7 +16,7 @@ reg rdy_clr = 0;
 
 uart test_uart(.din(data),
 	       .wr_en(enable),
-	       .clk_50m(clk),
+	       .CLK(clk),
 	       .tx(loopback),
 	       .tx_busy(tx_busy),
 	       .rx(loopback),
