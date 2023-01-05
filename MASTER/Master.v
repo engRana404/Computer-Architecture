@@ -22,7 +22,7 @@ PSEL);
 	output reg PENABLE;
 	output reg [32:0]PADDR;
 	output reg PWRITE; // write =1 read=0
-	output reg [31:0] PWDATA, send_r_out;
+	output reg [32:0] PWDATA, send_r_out;
 	output PSLVERR;
   output [1:0] PSEL; 
 
@@ -86,14 +86,22 @@ PSEL);
 			        PADDR = get_w_paddr; //send writing address
 
                     //select bits to write
+                    begin
                     if(PSTRB[0])
 				        PWDATA[7:0] = get_w_data_in[7:0];
+                    end
                     if(PSTRB[1])
+                    begin
 				        PWDATA[15:8] = get_w_data_in[15:8];
+                    end
+                    begin
                     if(PSTRB[2])
 				        PWDATA[23:16] = get_w_data_in[23:16];
+                    end
+                    begin
                     if(PSTRB[3])
 				        PWDATA[31:24] = get_w_data_in[31:24];
+                    end
                 end
 			    
 			    if(transfer && !PSLVERR)
