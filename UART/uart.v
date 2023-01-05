@@ -26,7 +26,7 @@ transmitter uart_tx(.din(din),
 receiver uart_rx(.rx(rx),
 		 .ready(rdy),
 		 .ready_clr(rdy_clr),
-		 .clk(clk_50m),
+		 .clk(CLK),
 		 .EnClk(rxclk_en),
 		 .rdout(dout));
 endmodule
