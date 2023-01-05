@@ -25,13 +25,15 @@ wire tx_tick;
 
 
 //Receiver
-Uart_rx rxObj(
+Uart_rx #(.DBITS (DBITS ))rxObj(
+        .reset(PRESETn),
+        .s_tick(rx_tick),
         .clk(rx_tick),
         .rx_start(rx),
         .rx_done(rx_done),
         .rx_dout(rx_dout)
 );
-Baud_generator_timer #(
+Uart_Baud #(
     .CLOCK_RATE(CLOCK_RATE),
     .BAUD_RATE(BAUD_RATE)
 )generatorObj (
