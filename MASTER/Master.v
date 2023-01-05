@@ -22,7 +22,7 @@ PSEL);
 	output reg PENABLE;
 	output reg [32:0]PADDR;
 	output reg PWRITE; // write =1 read=0
-	output reg [32:0] PWDATA, send_r_out;
+	output reg [31:0] PWDATA, send_r_out;
 	output PSLVERR;
   output [1:0] PSEL; 
 
